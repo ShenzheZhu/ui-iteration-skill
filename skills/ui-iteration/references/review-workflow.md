@@ -17,6 +17,12 @@ Record the revision, route, role, fixture data, and interaction that produced th
 
 Rank findings by impact. A clipped confirm button or unreadable text outranks inconsistent padding. A different spacing value can be intentional when density or hierarchy changes.
 
+## Keep the product UI ready for users
+
+- Use user-facing copy in every environment. Put fixture, mock, debug, and implementation details in the review deck or engineering evidence. Keep them out of product labels, accessible names, notifications, errors, and user-visible history. Treat user-authored names and content as data.
+- Present states users can understand and act on. Where the system can recover from a failed background or agent action, have it handle the recovery and preserve the user's work. Show actionable errors where the user has a decision or a way forward.
+- For purchase and upgrade flows, cover the offer, order confirmation, processing, and outcome. Preserve the product's documented navigation and return behavior, including the original page and balance refresh when required. Use the approved test environment and respect real-payment and accounting boundaries.
+
 ## Apply and verify requested fixes
 
 Save the baseline before editing. Use existing components and tokens to solve the identified problem. For shared changes, sample other callers with different text lengths, button counts, or states. For an interaction change, replay the trigger and the result. Check focus return after closing an overlay, scroll access to actions on a short viewport, and feedback when the operation is pending or fails, as applicable.

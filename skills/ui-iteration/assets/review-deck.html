@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UI Iteration</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root { color-scheme: light; font: 15px/1.5 system-ui, sans-serif; color: #29251f; background: #efede7; }
+    body { margin: 0; }
+    nav { position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 24px; background: #efede7; border-bottom: 1px solid #d5d0c5; }
+    nav strong { margin-inline-end: auto; }
+    button, select { min-height: 36px; max-width: 100%; padding: 4px 10px; border: 1px solid #c5bfb4; border-radius: 6px; background: #fbfaf7; color: inherit; font: inherit; }
+    button:not(:disabled), select { cursor: pointer; }
+    button:disabled { opacity: .5; }
+    main { max-width: 1800px; margin-inline: auto; padding: clamp(16px, 3vw, 40px); }
+    h1 { margin: 0; font-size: clamp(24px, 3vw, 40px); overflow-wrap: anywhere; }
+    #caption { margin: 6px 0 20px; color: #555047; }
+    #comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+    #comparison.single, #comparison.expanded { grid-template-columns: minmax(0, 1fr); }
+    [hidden] { display: none !important; }
+    .label { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .window { height: min(70vh, 760px); min-height: 240px; padding: 0; overflow: auto; background: #e4e0d7; border: 1px solid #d5d0c5; border-radius: 8px; }
+    .surface { position: relative; margin-inline: auto; overflow: hidden; }
+    iframe { position: absolute; inset: 0 auto auto 0; display: block; border: 0; background: #fff; transform-origin: top left; }
+    @media (max-width: 680px) {
+      nav { padding-inline: 12px; }
+      nav strong { flex-basis: 100%; }
+      #comparison { grid-template-columns: minmax(0, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <nav aria-label="Review navigation">
+    <strong id="deck-title"></strong>
+    <button id="previous" type="button" aria-label="Previous case">←</button>
+    <output id="count" aria-live="polite"></output>
+    <button id="next" type="button" aria-label="Next case">→</button>
+    <select id="case" aria-label="Case"></select>
+    <select id="size" aria-label="Viewport"></select>
+  </nav>
+  <main>
+    <h1 id="title"></h1>
+    <p id="caption"></p>
+    <div id="comparison">
+      <section class="pane">
+        <div class="label"><strong>Current UI</strong><button type="button" aria-pressed="false">Full size</button></div>
+        <div class="window"><div class="surface"><iframe sandbox="allow-scripts" title="Current UI"></iframe></div></div>
+      </section>
+      <section class="pane">
+        <div class="label"><strong>Proposal</strong><button type="button" aria-pressed="false">Full size</button></div>
+        <div class="window"><div class="surface"><iframe sandbox="allow-scripts" title="Proposal"></iframe></div></div>
+      </section>
+    </div>
+  </main>
+  <script type="application/json" id="review-data">__REVIEW_DATA__</script>
+  <script>
+    const byId = id => document.getElementById(id);
+    const { title, cases } = JSON.parse(byId('review-data').textContent);
+    const comparison = byId('comparison');
+    const casePicker = byId('case');
+    const sizePicker = byId('size');
+    const panes = [...document.querySelectorAll('.pane')].map(element => ({
+      element,
+      label: element.querySelector('strong'),
+      zoom: element.querySelector('button'),
+      window: element.querySelector('.window'),
+      surface: element.querySelector('.surface'),
+      frame: element.querySelector('iframe'),
+    }));
+    let index = 0;
+    let expanded = null;
+
+    document.title = byId('deck-title').textContent = title;
+    const groups = new Map();
+    for (const [i, entry] of cases.entries()) {
+      if (!groups.has(entry.group)) {
+        const group = document.createElement('optgroup');
+        group.label = entry.group;
+        groups.set(entry.group, group);
+        casePicker.append(group);
+      }
+      groups.get(entry.group).append(new Option(entry.title, i));
+    }
+    const sizes = new Set(['1100x740', '320x812', '320x360', ...cases.map(entry => entry.viewport.join('x'))]);
+    for (const size of sizes) sizePicker.add(new Option(size.replace('x', ' × '), size));
+
+    function fit() {
+      const [width, height] = sizePicker.value.split('x').map(Number);
+      for (const pane of panes) {
+        if (pane.element.hidden) continue;
+        const scale = pane === expanded ? 1 : Math.min(1, pane.window.clientWidth / width, pane.window.clientHeight / height);
+        pane.surface.style.width = width * scale + 'px';
+        pane.surface.style.height = height * scale + 'px';
+        pane.frame.style.width = width + 'px';
+        pane.frame.style.height = height + 'px';
+        pane.frame.style.transform = 'scale(' + scale + ')';
+      }
+    }
+
+    function showPanes() {
+      const single = !cases[index].after;
+      comparison.classList.toggle('single', single);
+      comparison.classList.toggle('expanded', Boolean(expanded));
+      for (const [i, pane] of panes.entries()) {
+        const fullSize = pane === expanded;
+        pane.element.hidden = (i === 1 && single) || Boolean(expanded && !fullSize);
+        pane.zoom.textContent = fullSize ? 'Back to comparison' : 'Full size';
+        pane.zoom.setAttribute('aria-pressed', String(fullSize));
+      }
+      fit();
+    }
+
+    function show() {
+      const target = cases.findIndex(entry => '#' + entry.id === location.hash);
+      index = target < 0 ? 0 : target;
+      const entry = cases[index];
+      expanded = null;
+      casePicker.value = String(index);
+      sizePicker.value = entry.viewport.join('x');
+      byId('title').textContent = entry.title;
+      byId('caption').textContent = entry.caption;
+      byId('count').textContent = (index + 1) + ' / ' + cases.length;
+      byId('previous').disabled = index === 0;
+      byId('next').disabled = index === cases.length - 1;
+      panes[0].label.textContent = panes[0].frame.title = entry.after ? 'Current UI' : 'Context';
+      panes[1].label.textContent = panes[1].frame.title = entry.afterLabel;
+      showPanes();
+      panes[0].frame.srcdoc = entry.before;
+      panes[1].frame.srcdoc = entry.after || '';
+    }
+
+    function go(next) {
+      if (cases[next]) location.hash = cases[next].id;
+    }
+    const observer = new ResizeObserver(fit);
+    for (const pane of panes) {
+      observer.observe(pane.window);
+      pane.zoom.onclick = () => {
+        expanded = expanded === pane ? null : pane;
+        showPanes();
+      };
+    }
+    byId('previous').onclick = () => go(index - 1);
+    byId('next').onclick = () => go(index + 1);
+    casePicker.onchange = () => go(Number(casePicker.value));
+    sizePicker.onchange = fit;
+    window.addEventListener('hashchange', show);
+    window.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && expanded) {
+        expanded = null;
+        showPanes();
+      }
+      if (event.target !== document.body || event.altKey || event.ctrlKey || event.metaKey) return;
+      if (event.key === 'ArrowLeft') go(index - 1);
+      if (event.key === 'ArrowRight') go(index + 1);
+    });
+    show();
+  </script>
+</body>
+</html>

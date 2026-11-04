@@ -1,9 +1,13 @@
 ---
-name: ui-review
-description: Review an existing UI and make scoped improvements when requested. Reproduce layout and spacing issues in the running product, group findings by function, and make before/after HTML review slides when a visual walkthrough would help.
+name: ui-iteration
+description: Run a UI iteration cycle on an existing product. Reproduce layout and spacing problems, prepare before/after HTML slides, apply requested changes, and verify them in the running UI.
 ---
 
-# UI Review
+# UI Iteration
+
+## Let the layout explain
+
+**Avoid unnecessary secondary labels and descriptions. Let the layout do the explaining.** Use grouping, alignment, proximity, and visual hierarchy to show relationships. Remove repeated labels and helper text when the control, heading, value, or adjacent content already communicates the same thing. Keep accessible names and copy that communicates a constraint, a state change, or a consequence users need to act on.
 
 ## Establish the baseline
 

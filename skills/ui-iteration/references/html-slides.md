@@ -2,6 +2,37 @@
 
 Use the existing review format when updating a deck. For a new HTML deck, start with the case list and build the interface around it. Use one stable key per case so the same link still opens the intended comparison after reordering.
 
+## Build a portable deck
+
+Use [the bundled builder](../scripts/build-deck.mjs) for new HTML decks. It runs on Node.js without dependencies and embeds the evidence in [the deck template](../assets/review-deck.html). Open the generated HTML directly in a browser.
+
+```sh
+node <skill-folder>/scripts/build-deck.mjs review.json review.html
+```
+
+```json
+{
+  "title": "Settings review",
+  "cases": [
+    {
+      "id": "settings/save-error",
+      "group": "Settings",
+      "title": "Save error on a short screen",
+      "caption": "Keep Save in view while validation messages scroll.",
+      "viewport": [320, 360],
+      "before": "captures/error-before.html",
+      "after": "captures/error-after.html",
+      "afterLabel": "Verified fix"
+    }
+  ]
+}
+```
+
+- Evidence paths are relative to the manifest. Use lossless `.png` for static captures and self-contained `.html` for interactive scenes. Inline each scene's assets so the deck works away from the original server. Use fixtures for state-changing interactions in a shareable deck.
+- Set `viewport` to the actual width and height in CSS pixels. It defaults to `[1100, 740]`. Keep case IDs stable when editing evidence or reordering cases. The builder defaults the after label to `Proposal`. Use `Verified fix` only after checking the product.
+- A context slide can omit `after`. Keep it only if it explains a neighboring comparison. The builder rejects exact duplicates. Still inspect every pair for a visible, meaningful difference.
+- For reviewer feedback, update the affected evidence and caption, rebuild from the same manifest, and reopen the original deep link. Exercise the interaction again when the decision changes behavior.
+
 ## Make each case reviewable
 
 1. **Scope the slide.** Show one state per slide. Group slides by user function and give each distinct subcase a direct link, such as `#settings/save-error`. Add previous and next controls and a case picker when the deck has enough cases to need them.
