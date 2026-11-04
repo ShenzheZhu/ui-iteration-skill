@@ -29,8 +29,14 @@ Save the baseline before editing. Use existing components and tokens to solve th
 
 Use a controlled fixture or test environment for flows that create records, send messages, make purchases, or change other persistent state. Report what ran and distinguish fixture outcomes from outcomes on an external service.
 
+## Make separate browser passes
+
+1. **Baseline:** Reproduce the reported issue in the running product at the exact size and state, then check a representative desktop and phone size where supported. For an audit without code changes, use a second pass to exercise runtime states and adjacent views the first pass missed.
+2. **Fix check:** After each change, reopen the original case, repeat the interaction that exposed it, and verify the outcome. Rebuild any affected slides from the checked state.
+3. **Regression pass:** Separately reopen nearby states, sample callers of shared components, and check a representative unaffected size. Include short screens, scroll, and keyboard interaction when the fix can affect them. If a deck is requested, inspect the delivered deck in the browser as well.
+
+Record each pass's scope, new findings, and blocked checks. Fix confirmed issues within the requested scope and repeat the targeted check and regression pass. Close the exercised scope only after a follow-up pass finds no new actionable issues. If the browser or a required state is unavailable, report that gap; source or fixture evidence does not close it.
+
 ## Recheck an existing review
 
 Compare the prior baseline to the requested build. Reopen affected cases and nearby states with shared components. Retire proposals the new build already satisfies, update stale evidence, and preserve stable identifiers for retained cases. Keep proposals, implemented changes, and confirmed behavior separate.
-
-For a multi-round audit, record each pass's scope and newly confirmed issues. After fixes, repeat the failing cases and relevant neighbors, then check high-impact gaps. A pass with no new actionable findings closes the exercised scope. Record any unreachable states or devices separately.

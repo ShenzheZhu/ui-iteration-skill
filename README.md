@@ -2,7 +2,7 @@
 
 An [Agent Skill](https://agentskills.io/specification) for the full cycle of reviewing an existing interface, applying changes, and verifying them in the browser. It combines layout and spacing guidance with before/after HTML slides.
 
-The workflow starts with a real user task. It reproduces the problem at the size where it occurs, checks how the relevant UI is built, and groups equivalent problems under one fix. When a visual walkthrough helps, each case opens at its own viewport with a short explanation and a like-for-like comparison.
+The workflow starts with a real user task. It reproduces the problem at the size where it occurs, checks how the relevant UI is built, and groups equivalent problems under one fix. Each slide compares the complete page at the case's own viewport, with one sentence pointing to the change. After edits, separate browser passes replay the original issue and check nearby states until no new actionable findings remain in the tested scope.
 
 ## Install
 
