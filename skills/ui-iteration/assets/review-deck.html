@@ -20,7 +20,7 @@
     #comparison.single, #comparison.expanded { grid-template-columns: minmax(0, 1fr); }
     [hidden] { display: none !important; }
     .label { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
-    .window { height: min(70vh, 760px); min-height: 240px; padding: 0; overflow: auto; background: #e4e0d7; border: 1px solid #d5d0c5; border-radius: 8px; }
+    .window { height: min(70vh, 760px, calc(var(--viewport-height) + 2px)); overflow: auto; background: #e4e0d7; border: 1px solid #d5d0c5; border-radius: 8px; }
     .surface { position: relative; margin-inline: auto; overflow: hidden; }
     iframe { position: absolute; inset: 0 auto auto 0; display: block; border: 0; background: #fff; transform-origin: top left; }
     @media (max-width: 680px) {
@@ -87,6 +87,7 @@
 
     function fit() {
       const [width, height] = sizePicker.value.split('x').map(Number);
+      comparison.style.setProperty('--viewport-height', height + 'px');
       for (const pane of panes) {
         if (pane.element.hidden) continue;
         const scale = pane === expanded ? 1 : Math.min(1, pane.window.clientWidth / width, pane.window.clientHeight / height);
