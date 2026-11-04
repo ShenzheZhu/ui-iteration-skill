@@ -6,13 +6,26 @@ The workflow starts with a real user task. It reproduces the problem at the size
 
 ## Install
 
+### Give your agent the link
+
+Paste this into your agent's chat:
+
+```text
+Load the ui-review skill from https://github.com/ShenzheZhu/ui-review-skill.
+Start with skills/ui-review/SKILL.md and load the bundled references it points to.
+```
+
+### Install with the CLI
+
 Run this from your project and select your agent. The [skills CLI](https://github.com/vercel-labs/skills) supports Claude Code, Cursor, Codex, OpenCode, and other agents. It requires Node.js 22.20 or later.
 
 ```sh
 npx skills add ShenzheZhu/ui-review-skill --skill ui-review
 ```
 
-For manual installation, copy the entire [`skills/ui-review`](skills/ui-review) folder into your agent's skills directory. You can also place it in a project and ask an agent with file access to follow `skills/ui-review/SKILL.md`. Keep the `references` folder alongside it so the workflow and bundled guidance are available offline.
+### Install manually
+
+Copy the entire [`skills/ui-review`](skills/ui-review) folder into your agent's skills directory. You can also place it in a project and ask an agent with file access to follow `skills/ui-review/SKILL.md`. Keep the `references` folder alongside it so the workflow and bundled guidance are available offline.
 
 ## Try it
 
